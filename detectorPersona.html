@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>05 - Detector de Persona</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+<style>
+  body{font-family:sans-serif;background:#111;color:#eee;text-align:center}
+  #barra{width:300px;height:18px;background:#333;border-radius:10px;margin:10px auto;overflow:hidden}
+  #relleno{height:100%;width:0;background:#c6ff3a}
+</style>
+</head>
+<body>
+<h2>05 · Alarma si una Persona permanece 5 s</h2>
+<button onclick="activarSonido()">Activar sonido</button>
+<div id="barra"><div id="relleno"></div></div>
+<div id="texto">0.0 / 5.0 s</div>
+
+<script>
+let video;
+let detector;
+let detections = [];
+let inicio = null;
+let sono = false;
+let audio;
+
+// Banderas para saber si la cámara y el modelo ya están listos
+let videoListo = false;
+let modeloListo = false;
+
+function setup() {
+  createCanvas(640, 480);
+  // El segundo parámetro es una función que se llama cuando la cámara YA cargó
+  video = createCapture(VIDEO, camaraLista);
+  video.size(640, 480);
+  video.hide();
+  // Cargar COCO-SSD
+  detector = ml5.objectDetector('cocossd', modeloCargado);
+}
+
+function camaraLista()  { videoListo = true;  intentarIniciar(); }
+function modeloCargado(){ modeloListo = true; intentarIniciar(); }
+
+// Solo iniciamos la detección cuando AMBOS están listos
+function intentarIniciar() {
+  if (videoListo && modeloListo) {
+    detector.detect(video, gotResults);
+  }
+}
+
+function gotResults(err, results) {
+  if (err) { console.error(err); return; }
+  detections = results;
+  detector.detect(video, gotResults);   // repetir = tiempo real
+}
+
+function activarSonido() {
+  audio = new AudioContext();
+}
+
+function draw() {
+  image(video, 0, 0);
+  let hayPersona = false;
+
+  for (let i = 0; i < detections.length; i++) {
+    let d = detections[i];
+    if (d.label === "person") {
+      hayPersona = true;
+      stroke(0, 255, 0);
+      strokeWeight(4);
+      noFill();
+      rect(d.x, d.y, d.width, d.height);
+      noStroke();
+      fill(255);
+      textSize(18);
+      text(d.label, d.x + 5, d.y + 20);
+    }
+  }
+
+  if (hayPersona) {
+    if (inicio === null) inicio = millis();
+    let segundos = (millis() - inicio) / 1000;
+    let porcentaje = Math.min(segundos / 5, 1) * 100;
+    document.getElementById("relleno").style.width = porcentaje + "%";
+    document.getElementById("texto").textContent =
+      Math.min(segundos, 5).toFixed(1) + " / 5.0 s";
+    if (segundos >= 5 && !sono) { sono = true; alarma(); }
+  } else {
+    inicio = null; sono = false;
+    document.getElementById("relleno").style.width = "0%";
+    document.getElementById("texto").textContent = "0.0 / 5.0 s";
+  }
+}
+
+function alarma() {
+  if (!audio) return;
+  let o = audio.createOscillator();
+  o.frequency.value = 880;
+  o.connect(audio.destination);
+  o.start();
+  o.stop(audio.currentTime + 0.8);
+  document.getElementById("texto").textContent = "⚠ ALARMA";
+}
+</script>
+</body>
+</html>

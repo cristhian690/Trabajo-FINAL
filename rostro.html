@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>03 - Partes del Rostro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+<style>
+  body{font-family:sans-serif;background:#111;color:#eee;text-align:center}
+  select,input{padding:6px;margin:6px}
+  #estado{color:#34e0d6;margin:8px}
+</style>
+</head>
+<body>
+<h2>03 · Detección de Partes del Rostro (FaceMesh)</h2>
+
+<select id="parte">
+  <option value="leftEye">Ojo izquierdo</option>
+  <option value="rightEye">Ojo derecho</option>
+  <option value="lips">Boca</option>
+  <option value="leftEyebrow">Ceja izquierda</option>
+  <option value="rightEyebrow">Ceja derecha</option>
+  <option value="faceOval">Contorno del rostro</option>
+</select>
+<input type="color" id="color" value="#c6ff3a">
+<div id="estado">Cargando modelo…</div>
+
+<script>
+let video;
+let faceMesh;
+let rostros = [];
+
+function setup() {
+  createCanvas(640, 480);
+  video = createCapture(VIDEO);   // SIN segundo parámetro (así sí funciona)
+  video.size(640, 480);
+  video.hide();
+
+  // Cargar el modelo FaceMesh
+  faceMesh = ml5.faceMesh({ maxFaces: 1 }, modeloListo);
+}
+
+function modeloListo() {
+  document.getElementById("estado").textContent = "Detectando rostro";
+  faceMesh.detectStart(video, gotFaces);   // empezar a detectar
+}
+
+function gotFaces(resultados) {
+  rostros = resultados;
+}
+
+function draw() {
+  if (video) image(video, 0, 0, width, height);   // mostrar la cámara
+
+  let parte = document.getElementById("parte").value;
+  let color = document.getElementById("color").value;
+
+  for (let cara of rostros) {
+    if (cara[parte]) {
+      fill(color);
+      noStroke();
+      for (let p of cara[parte].keypoints) {
+        circle(p.x, p.y, 5);   // dibujar los puntos de la parte elegida
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>
