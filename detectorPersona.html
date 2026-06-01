@@ -52,7 +52,7 @@ function intentarIniciar() {
 function gotResults(err, results) {
   if (err) { console.error(err); return; }
   detections = results;
-  detector.detect(video, gotResults);   // repetir = tiempo real
+  detector.detect(video, gotResults);   
 }
 
 function activarSonido() {
