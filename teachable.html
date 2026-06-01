@@ -9,13 +9,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.dom.min.js"></script>
 <script src="https://unpkg.com/ml5@0.6.0/dist/ml5.min.js"></script>
+
+<style>
+body{
+    background:#111;
+    color:#eee;
+    font-family:sans-serif;
+    text-align:center;
+    padding:20px;
+}
+
+h2{
+    color:#c6ff3a;
+}
+
+input{
+    background:#1a1a1a;
+    border:2px solid #333;
+    color:#c6ff3a;
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    text-align:center;
+}
+
+canvas{
+    display:block;
+    margin:auto;
+    border:2px solid #333;
+    border-radius:10px;
+    margin-top:20px;
+}
+</style>
+
 </head>
+
 <body>
 
 <h2>Detector de Objetos</h2>
 
-<input type="text" id="descripcion" readonly>
-<input type="text" id="confianza" readonly>
+<input type="text" id="descripcion" readonly placeholder="Objeto">
+<input type="text" id="confianza" readonly placeholder="Confianza">
 
 <script>
 
@@ -43,12 +77,14 @@ function setup() {
 
 function draw() {
 
-    background(220);
+    background(17); 
 
     push();
     translate(width,0);
     scale(-1,1);
+
     image(video,0,0,width,height);
+
     pop();
 }
 
@@ -76,27 +112,11 @@ function gotResult(error, results){
 
     } else {
 
-        document.getElementById("descripcion").value = "";
+        document.getElementById("descripcion").value = "❓ No seguro";
         document.getElementById("confianza").value = "";
     }
 
     classifyVideo();
-}
-
-function hablar(texto){
-
-    if(texto !== ultimoObjeto){
-
-        let voz = new SpeechSynthesisUtterance(texto);
-
-        voz.lang = "es-ES";
-        voz.rate = 1;
-
-        speechSynthesis.cancel();
-        speechSynthesis.speak(voz);
-
-        ultimoObjeto = texto;
-    }
 }
 
 function hablar(texto){

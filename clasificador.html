@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"> 
+<title>Detectar imagen</title>
+
+<style>
+body{
+  font-family:sans-serif;
+  background:#111;
+  color:#eee;
+  text-align:center;
+  padding:30px; 
+}
+
+h1{
+  color:#c6ff3a;
+}
+
+/* layout izquierda derecha */
+.container{
+  display:flex;
+  height:500px;
+  margin-top:20px;
+}
+
+/* MENU IZQUIERDO */
+.menu{
+  width:90px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  border-right:2px solid #333;
+  padding-right:10px;
+}
+
+.menu div{
+  background:#1a1a1a;
+  border:2px solid #333;
+  border-radius:10px;
+  padding:20px;
+  cursor:pointer;
+  color:#eee;
+}
+
+.menu div:hover{
+  border-color:#c6ff3a;
+}
+
+/* PANEL DERECHO */
+.panel{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+/* IMAGEN */
+.panel img{
+  width:260px;
+  height:260px;
+  object-fit:cover;
+  border:3px solid #333;
+  border-radius:10px;
+}
+
+/* RESULTADO */
+#resultado{
+  margin-top:15px;
+  font-size:20px;
+  color:#c6ff3a;
+}
+
+/* INTERROGACION */
+#question{
+  position:absolute;
+  font-size:120px;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Detectar imagen</h1>
+
+<div class="container">
+
+  <!-- IZQUIERDA -->
+  <div class="menu">
+    <div onclick="clasificar(0)">A</div>
+    <div onclick="clasificar(1)">B</div>
+    <div onclick="clasificar(2)">C</div>
+    <div onclick="clasificar(3)">D</div>
+    <div onclick="clasificar(4)">E</div>
+  </div>
+
+  <!-- DERECHA -->
+  <div class="panel">
+    <div id="question">❓</div>
+    <img id="imagen" src="img/img1.jpg">
+    <div id="resultado">Selecciona una imagen</div>
+  </div>
+
+</div>
+
+<script>
+
+let data = [
+  {img:"img/img1.jpg", label:"Perro"},
+  {img:"img/img2.jpg", label:"Gato"},
+  {img:"img/img3.jpg", label:"Carro"},
+  {img:"img/img4.jpg", label:"Manzana"},
+  {img:"img/img5.jpg", label:"Pelota"}
+];
+
+function clasificar(i){
+
+  let img = document.getElementById("imagen");
+  let res = document.getElementById("resultado");
+  let q = document.getElementById("question");
+
+  img.src = data[i].img;
+
+  let confianza = Math.random()*100;
+
+  if(confianza < 50){
+    q.style.display="block";
+    res.innerText="No se puede identificar";
+  } else {
+    q.style.display="none";
+    res.innerText = data[i].label + " - " + confianza.toFixed(2) + "%";
+  }
+}
+
+</script>
+
+</body>
+</html>
