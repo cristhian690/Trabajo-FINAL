@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Detector de Objetos</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.dom.min.js"></script>
+<script src="https://unpkg.com/ml5@0.6.0/dist/ml5.min.js"></script>
+</head>
+<body>
+
+<h2>Detector de Objetos</h2>
+
+<input type="text" id="descripcion" readonly>
+<input type="text" id="confianza" readonly>
+
+<script>
+
+let classifier;
+let video;
+const imageModelURL = "./modelos/";
+let ultimoObjeto = "";
+
+function preload() {
+    classifier = ml5.imageClassifier(
+        imageModelURL + "model.json"
+    );
+}
+
+function setup() {
+
+    createCanvas(320,240);
+
+    video = createCapture(VIDEO);
+    video.size(320,240);
+    video.hide();
+
+    classifyVideo();
+}
+
+function draw() {
+
+    background(220);
+
+    push();
+    translate(width,0);
+    scale(-1,1);
+    image(video,0,0,width,height);
+    pop();
+}
+
+function classifyVideo() {
+    classifier.classify(video, gotResult);
+}
+
+function gotResult(error, results){
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let objeto = results[0].label;
+    let confianza = results[0].confidence * 100;
+
+    if(confianza >= 50){
+
+        document.getElementById("descripcion").value = objeto;
+        document.getElementById("confianza").value =
+            confianza.toFixed(2) + "%";
+
+        hablar(objeto);
+
+    } else {
+
+        document.getElementById("descripcion").value = "";
+        document.getElementById("confianza").value = "";
+    }
+
+    classifyVideo();
+}
+
+function hablar(texto){
+
+    if(texto !== ultimoObjeto){
+
+        let voz = new SpeechSynthesisUtterance(texto);
+
+        voz.lang = "es-ES";
+        voz.rate = 1;
+
+        speechSynthesis.cancel();
+        speechSynthesis.speak(voz);
+
+        ultimoObjeto = texto;
+    }
+}
+
+function hablar(texto){
+
+    if(texto !== ultimoObjeto){
+
+        let voz = new SpeechSynthesisUtterance(texto);
+
+        voz.lang = "es-ES";
+        voz.rate = 1;
+
+        speechSynthesis.cancel();
+        speechSynthesis.speak(voz);
+
+        ultimoObjeto = texto;
+    }
+}
+
+</script>
+
+</body>
+</html>
